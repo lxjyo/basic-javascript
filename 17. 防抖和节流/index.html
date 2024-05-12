@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <input type="text" />
+    <button id="cancel">取消</button>
+    <script src="./throttle.js"></script>
+    <script>
+      const inputEl = document.querySelector('input');
+      const cancelBtn = document.querySelector('#cancel');
+      let counter = 0;
+
+      //输入触发事件
+      const inputChange = function (event) {
+        console.log(`发送了第${++counter}次网络请求`);
+        return 'aaaaaaaa';
+      };
+      const throttleChange = throttle(inputChange, 3000, {
+        leading: false,
+        tailing: true,
+      });
+      const tempCallback = function (...args) {
+        throttleChange.apply(this, args).then((res) => {
+          //此时this绑定的是input对象
+          console.log('Promise的返回值结果:', res);
+        });
+      };
+      inputEl.oninput = tempCallback;
+
+      cancelBtn.onclick = () => {
+        throttleChange.cancel();
+      };
+    </script>
+  </body>
+</html>

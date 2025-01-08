@@ -29,4 +29,4 @@ function LIS(arr) {
   return maxSeq;
 }
 
-console.log(LIS([2, 1, 5, 3, 6, 4, 8, 9, 7])); // [2, 3, 7, 101]
+console.log(LIS([2, 1, 5, 3, 6, 4, 8, 9, 7])); // [ 1, 3, 4, 8, 9 ]

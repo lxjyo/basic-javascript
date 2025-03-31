@@ -30,7 +30,7 @@ class LRUCache {
       return;
     }
     if (this.cache.size >= this.capacity) {
-      const firstKey = this.cache.keys().next().value; // 获取最久未被访问的数据的key
+      const firstKey = this.cache.keys().next().value; // 获取最久未被访问的数据的key - 遍历
       this.cache.delete(firstKey); // 删除最久未被访问的数据
     }
     this.cache.set(key, value) // 添加数据
@@ -65,3 +65,80 @@ lru.get(1);
 lru.put(3, 'c');
 lru.put(4, 'd');
 console.log(lru.cache)
+
+// 哈希 + 双向链表 更高效
+class Node {
+  constructor(key, value) {
+    this.key = key;
+    this.value = value;
+    this.prev = null; 
+    this.next = null;
+  }
+}
+
+class LRU {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.hashMap = new Map();
+    this.head = new Node(-1, -1);
+    this.tail = new Node(-1, -1);
+    this.head.next = this.tail;
+    this.tail.prev = this.head;
+  }
+  get(key) {
+    if (this.hashMap.has(key)) {
+      // 1. 找到节点
+      const node = this.hashMap.get(key);
+      // 2. 设置成最新访问节点
+      this.makeRecently(node);
+      return node.value;
+    }
+    return -1;
+  }
+
+  put(key, value) {
+    if (this.hashMap.has(key)) {
+      const node = this.hashMap.get(key);
+      node.value = value;
+      this.makeRecently(node);
+    } else {
+      if (this.hashMap.size >= this.capacity) {
+        const tailPrevNode = this.tail.prev; // 最久未使用的节点
+        this.removeNode(tailPrevNode);
+        this.hashMap.delete(tailPrevNode.key);
+      }
+      const node = new Node(key, value);
+      this.hashMap.set(key, node);
+      this.addToHead(node);
+    }
+  }
+
+  removeNode(node) {
+    const next = node.next;
+    const prev = node.prev;
+    next.prev = prev;
+    prev.next = next;
+  }
+
+  addToHead(node) {
+    node.next = this.head.next;
+    node.prev = this.head;
+    this.head.next.prev = node;
+    this.head.next = node;
+  }
+
+  makeRecently(node) {
+    // 1. 删除节点
+    this.removeNode(node);
+    // 2. 更新头
+    this.addToHead(node);
+  }
+}
+
+const hLru = new LRU(3);
+hLru.put(1, 'a');
+hLru.put(2, 'b');
+hLru.get(1);
+hLru.put(3, 'c');
+hLru.put(4, 'd');
+console.log(hLru.hashMap)

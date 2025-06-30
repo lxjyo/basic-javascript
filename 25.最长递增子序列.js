@@ -3,6 +3,7 @@
  * [10, 9, 2, 5, 3, 7, 101, 18] => 4 [2, 3, 7, 101] 或者 [2, 5, 7, 101]
  */
 
+// O(n^2) 时间复杂度
 function LIS(arr) {
   const len = arr.length;
   let maxSeq = [];
@@ -30,3 +31,34 @@ function LIS(arr) {
 }
 
 console.log(LIS([2, 1, 5, 3, 6, 4, 8, 9, 7])); // [ 1, 3, 4, 8, 9 ]
+
+/**
+ * 贪心算法 + 二分查找
+ * 贪心：每次选择当前最小的元素(即当前最小的尾元素)作为局部最优解
+ * @param {*} arr 
+ */
+function LISBetter(arr) {
+  const tails = []; // 最长递增子序列
+  for(let num of arr) {
+    // 利用二分查找，在tails中找到第一个大于等于num的元素
+    let left = 0;
+    let right = tails.length;
+    while(left < right) {
+      const mid = Math.floor((left + right) / 2);
+      if (num > tails[mid]) {
+        left = mid + 1;
+      } else {
+        right = mid;
+      }
+    }
+    if (left >= tails.length) {
+      // 如果没有找到，说明当前元素比tails中的所有元素都大
+      tails.push(num);
+    } else {
+      // 如果找到了，说明当前元素比tails中的某个元素小
+      tails[left] = num;
+    }
+  }
+  return tails;
+}
+console.log(LISBetter([2, 1, 5, 3, 6, 4, 8, 9, 7])); // [ 1, 3, 4, 7, 9 ]
